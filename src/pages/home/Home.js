@@ -1,10 +1,12 @@
 import React from 'react'
 import './Style.css'
+import HeroBanner from './heroBanner/heroBanner'
 
-const Home = () => {
+export const Home = () => {
   return (
-    <div>Home</div>
+    <div className='homePage'>
+      <HeroBanner />
+    </div>
   )
 }
-
 export default Home
