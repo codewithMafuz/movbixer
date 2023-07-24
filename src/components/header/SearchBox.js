@@ -1,46 +1,54 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { addInRecentSearchVals } from './searchSlice'
 
-export default function SearchBox({ screenCatg, isInHeader, classNames }) {
+export default function SearchBox(props) {
     const dispatch = useDispatch()
 
-    const [queryIsOk, setQueryIsOk] = useState(false)
     const [searchValInp, setSearchValInp] = useState('')
     const navigate = useNavigate()
     const handleSearchInp = (ev) => {
         let val = ev.target.value
         val = val.replaceAll(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/gi, '');
-        setQueryIsOk(searchValInp.length !== 0)
         setSearchValInp(val)
     }
     const doSearch = () => {
-        if (queryIsOk) {
-            navigate(`/search/${searchValInp}`)
+        if (searchValInp.trim().length > 0) {
+            const query = `/search/${searchValInp}`
+            navigate(query)
+            dispatch(addInRecentSearchVals(query))
+        } else {
+            setSearchValInp('')
         }
     }
     const searchIf = (ev) => {
-        if (ev.key === "Enter" && queryIsOk) {
+        if (ev.key === "Enter") {
             doSearch()
         }
     }
+    const handleClickSubmit = () => {
+        if (props.hideMenu) {
+            props.hideMenu()
+        }
+        doSearch()
+    }
 
     return (
-        <div className={`searchBox ${isInHeader ? 'headerSearch' : ''} ${classNames}`}>
+        <div className={`searchBox ${props.isInHeader ? 'headerSearch' : ''} ${props.className || ''}`}>
             <input
                 type="search"
                 value={searchValInp}
-                placeholder={screenCatg !== 'mobile' ? 'Search movies or TV shows...' : 'Search...'}
+                placeholder='Search'
                 onKeyDown={searchIf}
                 onChange={handleSearchInp}
-                className="bg-white rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="searchInput"
             />
             <button
-                disabled={!queryIsOk}
                 type="submit"
-                onClick={doSearch}
+                onClick={handleClickSubmit}
                 className="mx-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 focus:outline-none focus:ring focus:ring-sky-300 text-white font-semibold py-2 px-4 rounded-md"
-            >Search</button>
+            ><i className='bi bi-search'></i></button>
         </div>
 
     )

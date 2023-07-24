@@ -1,0 +1,20 @@
+.spinnerBox {
+  position: relative;
+}
+
+.spinnerBox.center {
+  width: -webkit-fill-available;
+  height: -webkit-fill-available;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+}
+
+.spinnerBox.viewport-center {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

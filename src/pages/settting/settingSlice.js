@@ -7,8 +7,9 @@ export const settingSlice = createSlice({
     },
     reducers: {
         setMaxWatchsInBanner: (state, action) => {
-            state.maxWatchsInBanner = action.payload === 0 || action.payload > 15 ? state.maxWatchsInBanner : action.payload
-        }
+            state.maxWatchsInBanner = action.payload
+        },
+
     }
 })
 
