@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Welcome to the Movbixer Project. This project is an app that allows you to explore millions of Movies, TV Shows, Casts, Crews, and many other entertainment features and functionalities. It provides short and quick videos of entertainment media.
+Welcome to the Movbixer Project. This project is an app that provides you to explore millions of Movies, TV Shows, Casts, Crews. It also provide many other entertainment features and functionalities like short and quick videos of entertainment media, Images and more.
 
 ## Contact
 
