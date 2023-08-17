@@ -47,7 +47,7 @@ export default function TabsSwitch({ className = '', classNameSelectedTab = '', 
                         <i className="bi bi-caret-down"></i>
                     }
                 </div>}
-            <div style={{ height: '288px', zIndex: 100000000000 }} className={`${showDropList ? '' : 'none '}${className}`} ref={tabBox}>
+            <div style={{ height: dropboxType ? '288px' : 'auto', zIndex: 100000000000 }} className={`${showDropList ? '' : 'none '}${className}`} ref={tabBox}>
                 {showDropList && tabNames.map((tabName, tabIndex) => {
                     return (
                         <button

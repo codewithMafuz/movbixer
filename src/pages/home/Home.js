@@ -32,6 +32,7 @@ export default function Home({ loading, error, isOnline }) {
               'Week': '/trending/all/week',
             }}
             heading={'Trending Movie & TV Shows'}
+            tabViewDropboxType={false}
             isIndexNavigate={false}
           />
           <WatchsBox
@@ -43,6 +44,7 @@ export default function Home({ loading, error, isOnline }) {
               'Crew': '/person/popular'
             }}
             heading={'Popular Now'}
+            tabViewDropboxType={false}
             isIndexNavigate={false} />
         </>
         :

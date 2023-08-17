@@ -84,7 +84,7 @@ export const WatchCard = ({ dataObj, index, serialNumber = false, isPerson = fal
 }
 
 
-export default function WatchsBox({ dataParam = [], heading = 'To Explore', renderOnTop = '', videos = false, isImage = false, fetchProp = false, isSeason = false, isEpisode = false, isIndexNavigate = false, limit = 100 }) {
+export default function WatchsBox({ dataParam = [], heading = 'To Explore', renderOnTop = '', videos = false, isImage = false, fetchProp = false, isSeason = false, isEpisode = false, isIndexNavigate = false, limit = 100, tabViewDropboxType = true }) {
     try {
 
     } catch (er) {
@@ -124,7 +124,7 @@ export default function WatchsBox({ dataParam = [], heading = 'To Explore', rend
                             <span className="carousel heading">{heading}</span>
                             {isDataParamIsObj &&
                                 <TabsSwitch
-                                    dropboxType={true}
+                                    dropboxType={tabViewDropboxType}
                                     className='tabBox'
                                     classNameSelectedTab='tab'
                                     activeClass='active'
