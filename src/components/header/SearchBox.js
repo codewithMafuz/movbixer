@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import fetchDataFromApi from '../../api/fetchURL';
 import { useSelector } from 'react-redux';
+import BadWordsFilter from 'bad-words';
+const filterWords = new BadWordsFilter()
 
 const DEBOUNCE_DELAY = 120;
 
@@ -19,9 +21,9 @@ export default function SearchBox(props) {
 
     const handleSearchInp = (ev) => {
         setDoneSearched(false)
-        let val = ev.target.value;
-        val = val.replaceAll(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/gi, '');
-        setSearchValInp(val);
+        let val = ev?.target?.value || ''
+        val = val.replaceAll(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/gi, '')
+        setSearchValInp(val)
     };
 
     useEffect(() => {
@@ -30,7 +32,7 @@ export default function SearchBox(props) {
     }, [stateSearchVal])
 
     useEffect(() => {
-        if (decodeURIComponent(window.location.href.split('search/')[1]) !== searchValInp) {
+        if (!filterWords.isProfane(searchValInp) && decodeURIComponent(window.location.href.split('search/')[1]) !== searchValInp) {
             const debounceTimer = setTimeout(() => {
                 if (!doneSearched) {
                     if (searchValInp.trim().length > 1 && searchValInp.trim().length < 180) {
@@ -39,7 +41,7 @@ export default function SearchBox(props) {
                             page: 1,
                         })
                             .then((response) => {
-                                setSuggestions(response.results.slice(0, 8).map(obj => obj.name));
+                                setSuggestions(response.results.slice(0, 8).map(obj => obj.name).filter(nm => !filterWords.isProfane(nm)));
                                 setShowSuggestionBox(true);
                             })
                             .catch((er) => {
@@ -55,18 +57,20 @@ export default function SearchBox(props) {
     }, [searchValInp]);
 
     const doSearch = (val = false) => {
-        setDoneSearched(true)
-        setShowSuggestionBox(false);
-        if (searchValInp.trim().length > 0 && searchValInp.trim().length < 180) {
-            const query = `/search/${val ? val : searchValInp}`;
-            navigate(query);
-        } else {
-            setSearchValInp('');
+        if (!filterWords.isProfane(searchValInp)) {
+            setDoneSearched(true)
+            setShowSuggestionBox(false);
+            if (searchValInp.trim().length > 0 && searchValInp.trim().length < 180) {
+                const query = `/search/${val ? val : searchValInp}`;
+                navigate(query);
+            } else {
+                setSearchValInp('');
+            }
         }
     };
 
     const handleKeyDownSearch = (ev) => {
-        if (ev.keyCode === 13) {
+        if (ev.keyCode === 13 && !filterWords.isProfane(searchValInp)) {
             doSearch(searchValInp);
             setShowSuggestionBox(false)
         }
