@@ -14,7 +14,7 @@ export default function Home({ loading, error, isOnline }) {
   }
 
   useEffect(() => {
-    setTitle('Mobvixer')
+    setTitle('Movbixer')
   }, [])
 
 
