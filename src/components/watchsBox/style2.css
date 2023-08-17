@@ -1,0 +1,44 @@
+.watchBoxInfiniteContainer {
+    padding-top: 80px;
+}
+
+.watchBoxInfiniteContainer .watchBoxHeading {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.watchBoxInfinite {
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px 20px;
+    height: auto;
+    overflow-y: auto;
+}
+
+.watchBoxInfiniteBox {
+    overflow: hidden;
+    cursor: pointer;
+    width: 300px;
+    height: 520px;
+    position: relative;
+}
+
+.reachedEnd {
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--sky-blue-1);
+}
+
+@media screen and (max-width:600px) {
+    .watchBoxInfinite {
+        gap: 6px 0;
+    }
+
+    .watchBoxInfiniteBox {
+        width: 200px;
+        height: 420px;
+    }
+}

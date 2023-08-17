@@ -6,164 +6,204 @@ import 'swiper/css';
 import 'swiper/css/effect-creative';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import BlackImage from '../../assets/full-black-image.jpg';
-import './style.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import LazyLoadImg from '../lazyLoadImage/LazyLoadImage';
+import TabsSwitch from '../tabsSwitch/TabsSwitch';
 import RatingShow from '../ratingShow/RatingShow';
 import Spinner from '../spinner/Spinner';
 import useFetch from '../../hooks/useFetch';
 import GenresBox from '../genres/GenresBox';
+import NetworkError from '../networkError/networkError';
+import './style.css';
+import { PlayBtn } from '../playVideo/PlayVideo';
 
 
-export const WatchCard = ({ dataObj }) => {
-    const sr = dataObj['poster_path'];
-    const formatDate = (dtStr) =>
-        new Date(dtStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-
-    return (
-        <div className="card w-96 bg-base-100 shadow-xl">
-            <figure><img src={dataObj} alt="Shoes" /></figure>
-            <div className="card-body">
-                <h2 className="card-title">
-                    {dataObj.title || dataObj.name || 'Unknown'}
-                    <div className="badge badge-secondary">NEW</div>
-                </h2>
-                <p>{formatDate(dataObj.release_date || dataObj.first_air_date)}</p>
-                <div className="card-actions justify-end">
-
-                    <div className="badge badge-outline">Fashion</div>
-                    <div className="badge badge-outline">Products</div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export const Tabs = ({ tabNames, handleActiveIndex, activeIndex }) => {
-
-    return (
-        <div className="tabBox right custom-badge">
-            {tabNames.map((tabName, tabIndex) => {
-                return (
-                    <span
-                        key={tabIndex}
-                        onClick={() => {
-                            handleActiveIndex(tabIndex)
-                        }}
-                        className={"tab" + (tabIndex === activeIndex ? ' active' : '')}
-                    >{tabName}
-                    </span>
-                )
-            }
-            )}
-        </div>
-    )
-
-}
-
-
-export default function WatchsBox({ dataParam = [], heading = 'To Explore' }) {
-    const {imageBaseURL } = useSelector(state => state.home)
+export const WatchCard = ({ dataObj, index, serialNumber = false, isPerson = false, showGenres = false, showRating = false, imgEffect = 'blur', isIndexNavigate = false, isSeason = false, isEpisode = false, isImage = false }) => {
     const navigate = useNavigate()
+    const id = dataObj.id
+    const paths = '/' + window.location.href.split('//')[1].split('/').slice(1).join('/') + '/'
+    const lastPath = paths.slice(0, -1).split('/')[2]
+    const serial = index + 1
+    const mediaType = isPerson ? 'person' : dataObj.title ? 'movie' : 'tv'
+
+    const { imageBaseURL } = useSelector(state => state.home)
+    const sr = isPerson ? dataObj.profile_path : (dataObj.poster_path || dataObj.still_path || dataObj.file_path)
+    const imgSrc = sr ? imageBaseURL + sr : false
+
+    let navigationTo = (isIndexNavigate || (!isSeason && !isEpisode)) ? ('/' + mediaType + '/' + (isIndexNavigate ? lastPath + '/' + isIndexNavigate : id)) : ''
+        +
+        (
+            isIndexNavigate ? '/' + isIndexNavigate : ''
+        )
+        +
+        (
+            (isSeason ? paths + serial : '')
+            +
+            (isEpisode ? paths + serial : '')
+        )
+
+
+    const handleClickDetails = () => {
+        isImage ? window.open('https://image.tmdb.org/t/p/original' + sr, '_blank') : navigate(navigationTo)
+    }
+
+    return (
+        <div className="carousel max-w-sm rounded overflow-hidden shadow-lg"
+            onClick={handleClickDetails}>
+            {imgSrc ?
+                (imgEffect ? <LazyLoadImg
+                    effect='blur'
+                    className="carousel w-full"
+                    src={imgSrc}
+                    alt="img not available"
+                /> : <img className="carousel w-full" src={imgSrc} alt='img not available' />)
+                :
+                <div style={{ minHeight: '380px' }} className='skeleton-loading'></div>
+            }
+
+            {!isImage &&
+                <div className="carousel titleBox h-16 px-6 py-4">
+                    <div className="carousel title text-white font-bold text-lg">{serialNumber ? (index + 1) + '. ' : ''}{dataObj.title || dataObj.name || '---'}</div>
+                </div>}
+            {!isPerson && showRating &&
+                <RatingShow
+                    rating={dataObj?.vote_average?.toFixed(1)}
+                    parentClassName={'circleRatingBox'} />}
+
+            {!isPerson && showGenres &&
+                <GenresBox
+                    directData={isPerson ? isPerson.map(obj => obj.title || obj.name) : false}
+                    mediaType={dataObj.title ? 'movie' : isPerson ? 'person' : 'tv'}
+                    spanClassName={'text-xs carousel inline-block bg-gray-200 rounded-full px-2 py-1 text-sm font-semibold'}
+                    genreIds={dataObj.genre_ids}
+                    className="carousel genreBox px-6 pt-4 pb-2" />}
+
+        </div>
+    )
+}
+
+
+export default function WatchsBox({ dataParam = [], heading = 'To Explore', renderOnTop = '', videos = false, isImage = false, fetchProp = false, isSeason = false, isEpisode = false, isIndexNavigate = false, limit = 100 }) {
+    try {
+
+    } catch (er) {
+    }
+    const isDataParamIsObj = !Array.isArray(dataParam)
+    const [refresh, setRefresh] = useState(false)
     const [activeIndex, setActiveIndex] = useState(0)
-    const [toFetchOrShow, setToFetchOrShow] = useState(!Array.isArray(dataParam) ? Object.values(dataParam)[activeIndex] : dataParam)
+    const [toFetchOrShow, setToFetchOrShow] = useState(isDataParamIsObj ? Object.values(dataParam)[activeIndex] : dataParam)
+
     useEffect(() => {
         setToFetchOrShow(
-            (!Array.isArray(dataParam))
+            (isDataParamIsObj)
                 ? (Object.values(dataParam)[activeIndex]).toLowerCase()
                 : dataParam
         )
+    }, [activeIndex, JSON.stringify(dataParam)])
 
-    }, [activeIndex, dataParam])
+    const { data, loading, error } = useFetch(toFetchOrShow, 1, {}, refresh, fetchProp)
 
-    const { data, loading } = useFetch(toFetchOrShow, 1)
-    const [slidesPerView, setSlidesPerView] = useState(5);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setSlidesPerView(Math.round(window.innerWidth / 250))
-        };
-        window.addEventListener('resize', handleResize);
-        handleResize();
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+    const slidesPerView = Math.round(window.innerWidth / (videos || (Array.isArray(data) && data?.find(obj => obj.hasOwnProperty('still_path'))) ? 400 : 250))
 
 
-    const handleClickDetails = (dataObj) => {
-        let mediaType = dataObj.title ? 'movie' : 'tv'
-        navigate(`/${mediaType}/${dataObj.id}`)
+    const handleRefresh = () => {
+        setRefresh(Date.now())
     }
-    const handleActiveIndex = (index) => {
-        setActiveIndex(index)
-    }
+
 
     return (
-        <div className="carousel container">
-            {loading ?
-                <Spinner classNames='center' size='2.5rem' loadingColor='var(--sky-blue-3)' circleColor='transparent' />
-                :
-                <>
-                    <div className="carousel topContent my-2">
-                        <span className="custom-badge size-2">{heading}</span>
-                        {!Array.isArray(dataParam) &&
-                            <Tabs
-                                tabNames={Object.keys(dataParam)}
-                                handleActiveIndex={handleActiveIndex}
-                                activeIndex={activeIndex} />
-                        }
-                    </div>
-                    <Swiper
-                        effect="creative"
-                        slidesPerView={slidesPerView}
-                        spaceBetween={slidesPerView * 2}
-                        navigation={{
-                            nextEl: '.swiper-button-next',
-                            prevEl: '.swiper-button-prev',
-                            clickable: true,
-                        }}
-                        className="carousel swiper_container"
-                        modules={[EffectCoverflow, Pagination, Navigation]}>
-                        {data && Array.isArray(data) && data.map((dataObj, id) => {
-                            const sr = dataObj['poster_path'];
-                            return (
-                                <SwiperSlide
-                                    onClick={() => { handleClickDetails(dataObj) }}
-                                    className={`carousel swiper-slide-customize`}
-                                    key={id}>
-                                    <div className="carousel max-w-sm rounded overflow-hidden shadow-lg">
-                                        <LazyLoadImg
-                                            className="carousel w-full"
-                                            src={sr ? imageBaseURL + sr : BlackImage}
-                                            alt="img not available"
-                                        />
-                                        <RatingShow
-                                            rating={dataObj.vote_average.toFixed(1)}
-                                            parentClassName={'circleRatingBox'}
-                                        />
-                                        <div className="carousel titleBox h-16 px-6 py-4">
-                                            <div className="carousel title text-white font-bold text-lg">{dataObj.title || dataObj.name}</div>
-                                        </div>
-                                        <GenresBox mediaType={dataObj.title ? 'movie' : 'tv'} spanClassName={'text-xs carousel inline-block bg-gray-200 rounded-full px-2 py-1 text-sm font-semibold'} genreIds={dataObj.genre_ids} className="carousel genreBox px-6 pt-4 pb-2" />
-                                    </div>
-                                </SwiperSlide>
-                            );
-                        })}
-                        <div className="carousel slider-controler">
-                            <div className="carousel swiper-button-prev slider-arrow">
-                                <ion-icon name="arrow-back-outline"></ion-icon>
-                            </div>
-                            <div className="carousel swiper-button-next slider-arrow">
-                                <ion-icon name="arrow-forward-outline"></ion-icon>
-                            </div>
+        <>
+            {renderOnTop}
+            <div className="carousel container">
+                {loading ?
+                    <Spinner classNames='center' size='2.5rem' loadingColor='var(sky-blue-3)' circleColor='transparent' />
+                    :
+                    <>
+                        <div className="carousel topContent my-2">
+                            <span className="carousel heading">{heading}</span>
+                            {isDataParamIsObj &&
+                                <TabsSwitch
+                                    dropboxType={true}
+                                    className='tabBox'
+                                    classNameSelectedTab='tab'
+                                    activeClass='active'
+                                    tabNames={Object.keys(dataParam)}
+                                    onTabChange={(index) => {
+                                        setActiveIndex(index)
+                                    }} />
+                            }
                         </div>
-                    </Swiper>
-                </>
-            }
-        </div>
+                        {!error ?
+                            <Swiper
+                                slidesPerView={slidesPerView}
+                                spaceBetween={slidesPerView * 2}
+                                effect="fade"
+                                navigation={{
+                                    nextEl: '.swiper-button-next',
+                                    prevEl: '.swiper-button-prev',
+                                    clickable: true,
+                                    disabledClass: '_empty'
+                                }}
+                                className="carousel swiper_container"
+                                modules={[EffectCoverflow, Pagination, Navigation]}>
+                                {data && Array.isArray(data) && data.slice(0, limit ? limit : data.length).map((dataObj, index) => {
+                                    const isPerson = dataObj.hasOwnProperty('profile_path') || dataObj.hasOwnProperty('gender')
+                                    const isTvEp = dataObj.hasOwnProperty('still_path')
+
+                                    return (
+                                        <SwiperSlide
+                                            className={`carousel swiper-slide-customize`}
+                                            key={index}>
+                                            {!videos ?
+                                                <WatchCard
+                                                    index={index}
+                                                    serialNumber={true}
+                                                    showRating={dataObj.vote_average}
+                                                    showGenres={dataObj.genres}
+                                                    key={index}
+                                                    dataObj={dataObj}
+                                                    isPerson={isPerson}
+                                                    isImage={isImage}
+                                                    detailsBtn={isTvEp}
+                                                    isIndexNavigate={(isIndexNavigate === true && typeof isIndexNavigate === 'boolean') ? activeIndex + 1 : (isIndexNavigate || false)}
+                                                    isSeason={isSeason}
+                                                    isEpisode={isEpisode}
+                                                />
+                                                :
+                                                <PlayBtn
+                                                    src={dataObj.key ? (`https://img.youtube.com/vi/${dataObj.key}/hqdefault.jpg`) : false}
+                                                    videoKeyProp={dataObj.key || false}
+                                                    title={'Play ' + (dataObj.type || 'Video')}
+                                                    showAnimationOnNoImage={true}
+                                                    name={dataObj.name || '---'}
+                                                />
+                                            }
+                                        </SwiperSlide>
+                                    );
+                                })}
+                                <div className="carousel slider-controler">
+                                    <div className="carousel swiper-button-prev slider-arrow">
+                                        <ion-icon name="arrow-back-outline"></ion-icon>
+                                    </div>
+                                    <div className="carousel swiper-button-next slider-arrow">
+                                        <ion-icon name="arrow-forward-outline"></ion-icon>
+                                    </div>
+                                </div>
+                            </Swiper>
+                            :
+                            (
+                                error === 'ERR_NETWORK'
+                                    ?
+                                    <NetworkError onClickBtn={handleRefresh} historyBack={true} />
+                                    :
+                                    <Spinner classNames='center' size='2.5rem' loadingColor='red' circleColor='transparent' />
+                            )
+                        }
+                    </>
+                }
+            </div>
+        </>
     );
 }
 

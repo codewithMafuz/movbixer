@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import SearchBox from './SearchBox';
 import './style.css'
+import { useSelector } from 'react-redux';
 
 
 export default function Header() {
@@ -10,11 +11,32 @@ export default function Header() {
     const [scrollPosition, setScrollPosition] = useState(0);
     const [prevScrollPosition, setPrevScrollPosition] = useState(0);
     const [scrollingUpStartPosition, setScrollingUpPosition] = useState(0)
-
+    const [canShowGoUpBtn, setCanShowGoUpBtn] = useState(false)
+    const [prevScrollYToJump, setPrevScrollYToJump] = useState(0)
+    const showGoUpBtn = useSelector(state => state.search.showGoUpBtn)
 
     const handleScroll = () => {
         setScrollPosition(window.scrollY);
     };
+    const handleClickGoUpOrDown = () => {
+        if (canShowGoUpBtn) {
+            setPrevScrollYToJump(scrollPosition)
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth',
+            });
+        } else {
+            const scrollHeight = document.documentElement.scrollHeight;
+            const offset = parseInt(window.innerHeight * 4)
+            const targetScrollY = scrollHeight - offset;
+            window.scrollTo({
+                top: prevScrollYToJump < targetScrollY ? prevScrollYToJump : targetScrollY,
+                left: 0,
+                behavior: 'smooth',
+            });
+        }
+    }
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
@@ -37,6 +59,7 @@ export default function Header() {
         } else {
             setHideHeader(false)
         }
+        setCanShowGoUpBtn(scrollPosition > 2000 ? true : false)
         setPrevScrollPosition(scrollPosition);
     }, [scrollPosition, prevScrollPosition, scrollingUpStartPosition]);
 
@@ -69,20 +92,10 @@ export default function Header() {
                             className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} >
                             TV</NavLink>
                     </li>
-                    {showNavLinks &&
-                        <>
-                            <SearchBox
-                                className="inNav"
-                                isInHeader={true}
-                                hideMenu={hideMenu} />
-                            <i onClick={() => {
-                                setShowNavLinks(showNavLinks ? false : true)
-                            }} className="bi bi-x"></i>
-                        </>}
                 </ul>
                 <SearchBox
+                    hideMenu={hideMenu}
                     className="searchBox"
-                    isInHeader={true}
                 />
                 <div className="flex center iconBox">
                     <i onClick={() => {
@@ -90,6 +103,14 @@ export default function Header() {
                     }} className={"menuBar text-white relative bi bi-list"}></i>
                 </div>
             </nav>
+            {showGoUpBtn &&
+                <>
+                    {canShowGoUpBtn ?
+                        < i onClick={handleClickGoUpOrDown} className="goUpBtn bi bi-arrow-up"></i>
+                        :
+                        < i onClick={handleClickGoUpOrDown} className="goUpBtn bi bi-arrow-down"></i>}
+                </>
+            }
         </header >
     )
 }

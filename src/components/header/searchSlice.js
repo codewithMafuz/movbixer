@@ -3,14 +3,18 @@ import { createSlice } from "@reduxjs/toolkit";
 export const searchSlice = createSlice({
     name: 'search',
     initialState: {
-        recentSearchedVals: [],
+        searchVal: '',
+        showGoUpBtn: false
     },
     reducers: {
-        addInRecentSearchVals: (state, action) => {
-            state.recentSearchedVals.push(action.payload)
+        setShowGoUpBtn: (state, action) => {
+            state.showGoUpBtn = action.payload
+        },
+        setSearchVal: (state, action) => {
+            state.searchVal = action.payload
         }
     }
 })
 
-export const { addInRecentSearchVals } = searchSlice.actions
+export const { setShowGoUpBtn, setSearchVal } = searchSlice.actions
 export default searchSlice.reducer

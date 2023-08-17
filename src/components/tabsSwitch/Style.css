@@ -1,0 +1,119 @@
+.none {
+    display: none;
+}
+
+.dropListToggle {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 200px;
+    font-size: 1.3rem;
+    color: white;
+    cursor: pointer;
+}
+
+.tabBox {
+    transition: .2s ease all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    background-color: white;
+    border-radius: 50px;
+    padding: 1px;
+    font-family: var(--font-3);
+    gap: 1px;
+    position: absolute;
+    right: 5vw;
+    height: auto;
+}
+
+.tabBox *,
+.dropListToggle * {
+    user-select: none;
+    -moz-user-select: none;
+}
+
+.dropbox {
+    height: 0;
+    overflow: hidden;
+    animation: expandHeight 0.2s ease forwards;
+}
+
+.tabBox.dropbox {
+    flex-direction: column;
+    left: 0;
+    top: 40px;
+    max-width: 400px;
+    min-width: 180px;
+    z-index: 10;
+    border-color: transparent;
+    border-radius: 10px;
+    background-color: black;
+    outline: 1px solid skyblue;
+    box-shadow: rgb(153 153 153 / 20%) 0px 1px 29px 3px;
+    max-height: 300px;
+    z-index: 2147483647;
+    overflow-y: scroll;
+    width: auto;
+    display: block;
+}
+
+.tabBox .tab {
+    cursor: pointer;
+    border-radius: 50px;
+    font-size: 1.3rem;
+    padding: 1px 10px;
+}
+
+.tabBox.dropbox .tab {
+    height: 36px !important;
+    color: skyblue;
+    width: 100%;
+    border-radius: 10px;
+    border-color: transparent;
+    outline: 1px solid skyblue;
+    border-radius: 0;
+    padding: 4px;
+}
+
+.tabBox .tab:hover {
+    filter: brightness(.95);
+}
+
+.tabBox .tab.active {
+    color: white;
+    background: var(--gradient1);
+    text-align: center;
+}
+
+.dropboxControllScroll {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    height: 300px;
+    display: flex;
+    width: 50px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100000000000;
+    flex-direction: column;
+    padding: 26px 0;
+    background: transparent;
+    color: white;
+    font-size: 1.6rem;
+}
+
+.dropboxControllScroll .controllIcon {
+    background: black;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+@media screen and (max-width:800px) {
+    .tab {
+        font-size: 1rem;
+        padding: 0 7px;
+    }
+
+}

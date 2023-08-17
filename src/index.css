@@ -1,3 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Open+Sans:wght@600&family=PT+Sans&family=Quicksand:wght@600;700&family=Satisfy&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -12,19 +18,39 @@ body {
     font-family: Arial, sans-serif;
     --font-1: 'Arial, sans-serif';
     --font-2: 'mono, sans-serif';
+    --font-3: 'Quicksand', sans-serif;
+    --font-4: 'Satisfy, sans-serif';
+    --font-5: 'Itim, sans-serif';
     --black: black;
     --black2: #080808;
-    --black3: rgb(3, 22, 39);
+    --black3: rgb(3, 35, 63);
+    --black4: rgb(3, 22, 39);
     --black-bg-1: rgb(8, 8, 8);
     --sky-blue-1: skyblue;
     --sky-blue-2: rgb(80, 193, 238);
     --sky-blue-3: rgb(33, 185, 245);
     --sky-blue-transparent-1: rgba(11, 113, 153, 0.11);
     --white: white;
+    --wrap-padding: 10px;
+    --gradient1: linear-gradient(90deg, rgba(47, 112, 131, 1) 7%, rgba(17, 140, 176, 1) 46%, rgba(38, 147, 120, 1) 100%);
 }
 
 .none {
     display: none !important;
+}
+
+.relative {
+    position: relative !important;
+}
+
+.full-height-width {
+    display: block;
+    height: 100vh;
+    width: 100vw;
+}
+
+.opacity-none {
+    opacity: 0;
 }
 
 .flex-center {
@@ -60,9 +86,9 @@ body {
 }
 
 .custom-badge {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: var(--sky-blue-1);
-    background: linear-gradient(90deg, rgba(47, 112, 131, 1) 7%, rgba(17, 140, 176, 1) 46%, rgba(38, 147, 120, 1) 100%);
+    background: var(--gradient1);
     border-radius: 10px;
     color: white;
     padding: 4px 15px;
@@ -70,51 +96,93 @@ body {
 
 .custom-badge.size-1 {
     padding: 3px 18px;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     border-radius: 15px;
 }
 
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
 
+.moving-border {
+    position: relative;
+    background: var(--black2);
+    padding: 4px;
+}
 
-.tabBox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.moving-border.red::before,
+.moving-border.red::after {
+    background: linear-gradient(var(--angle), transparent, red);
+    border-radius: 50%;
+}
+
+.moving-border::before,
+.moving-border::after {
+    content: "";
     position: absolute;
-    top: 50%;
-    text-align: center;
-    z-index: 1 !important;
-    padding: 0;
-    border-radius: 50px;
+    inset: -1px;
+    z-index: -1;
+    background: linear-gradient(var(--angle), var(--sky-blue-3), #C3F2FF, black);
+    animation: rotate 8s linear infinite;
+    border-radius: 20px;
 }
 
-.tabBox.right {
-    transform: translate(-15%, -50%);
-    right: 0;
+.moving-border::after {
+    filter: blur(10px);
 }
 
-.tabBox.left {
-    transform: translate(15%, -50%);
-    left: 0;
-}
-
-.tabBox .tab {
-    filter: brightness(.7);
-    width: 100%;
+.skeleton-loading {
+    filter: blur(100px);
     height: 100%;
-    padding: 2px 12px;
-    cursor: pointer;
+    width: 100%;
+    background: linear-gradient(90deg, rgb(39 71 71 / 91%) 25%, rgb(35 32 32 / 20%) 50%, rgb(53 148 247 / 38%) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s linear infinite;
 }
 
-.tabBox .tab:hover {
-    filter: brightness(.8);
-    text-decoration: underline;
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
-.tabBox .tab:active,
-.tabBox .tab.active {
-    filter: brightness(1);
+.heightAnimation {
+    animation: expandHeight 0.2s ease forwards;
 }
+
+@keyframes expandHeight {
+    from {
+        height: 0;
+    }
+
+    to {
+        height: auto;
+    }
+}
+
+@keyframes rotate {
+    0% {
+        --angle: 0deg;
+    }
+
+    100% {
+        --angle: 360deg;
+    }
+}
+
+.forceImg {
+    width: 100% !important;
+    height: 100vh !important;
+    object-fit: contain !important;
+}
+
+
 
 @media screen and (max-width:1000px) {
     .content-wrapper {
@@ -129,6 +197,12 @@ body {
 }
 
 @media screen and (max-width:500px) {
+    .custom-badge.size-1 {
+        padding: 1px 12px;
+        font-size: 1.3rem;
+        border-radius: 6px;
+    }
+
     .content-wrapper {
         margin: 0 4px;
     }

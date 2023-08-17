@@ -1,9 +1,11 @@
 import React from 'react'
 import './style.css'
 
-export default function Spinner({ circleColor = 'whitesmoke', loadingColor = 'green', size = '1rem', classNames = 'viewport-center', loadingEffect = 'linear', eachSpinTakeSec = 1 }) {
+export default function Spinner({ circleColor = 'whitesmoke', loadingColor = 'green', size = '1rem', classNames = 'center', loadingEffect = 'linear', eachSpinTakeSec = 1 }) {
+
+
     return (
-        <div className={"spinnerBox " + classNames}>
+        <div style={{ minWidth: '100%' }} className={"spinnerBox " + (classNames === '' ? 'center' : classNames)}>
             <div className='spinner' aria-label="Loading..." role="status">
                 <svg style={{ width: size, height: size, animation: `spin ${eachSpinTakeSec}s ${loadingEffect} infinite` }} className="animate-spin" viewBox="3 3 18 18">
                     <path style={{ fill: circleColor }} d="M12 5C8.13401 5 5 8.13401 5 12c0 3.866 3.13401 7 7 7 3.866.0 7-3.134 7-7 0-3.86599-3.134-7-7-7zM3 12c0-4.97056 4.02944-9 9-9 4.9706.0 9 4.02944 9 9 0 4.9706-4.0294 9-9 9-4.97056.0-9-4.0294-9-9z"></path>

@@ -1,83 +1,180 @@
 import React, { useState, useEffect } from 'react'
-import { json, useParams } from 'react-router-dom'
-import useFetch from '../../hooks/useFetch'
+import { useParams } from 'react-router-dom'
 import CustomSelect from '../../components/customSelect/CustomSelect'
 import './style.css'
-import { useSelector } from 'react-redux'
-import { capFirstLetter, getAllValsOfProp } from '../../App'
+import { useSelector, useDispatch } from 'react-redux'
+import { capFirstLetter, correctType, getMatchedVals, setTitle } from '../../App'
+import './style.css'
+import WatchBoxInfinite from '../../components/watchsBox/WatchBoxInfinite'
+import Spinner from '../../components/spinner/Spinner'
+import fetchDataFromApi from '../../api/fetchURL'
+import { setShowGoUpBtn } from '../../components/header/searchSlice'
+import NetworkError from '../../components/networkError/networkError'
 
 export default function Discover() {
+    const dipatch = useDispatch()
+    dipatch(setShowGoUpBtn(true))
+
     const { mediaType } = useParams()
     const isMovie = mediaType === 'movie'
+    const { movieGenres, tvGenres } = useSelector(state => state.home)
 
-    const [dataArr, setDataArr] = useState([])
+
+
+    const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [networkFailed, setNetworkFailed] = useState(false)
     const [pageNum, setPageNum] = useState(1)
-    const [url, setURL] = useState(`/discover/${mediaType}?page=${pageNum}`)
+    const getURL = (page) => `/discover/${mediaType}?page=${page}`
+    const [totalPages, setTotalPages] = useState(null)
+    const [totalResults, setTotalResults] = useState(null)
     const [filterOptions, setFilterOptions] = useState({})
+    const [isReachedEnd, setIsReachedEnd] = useState(false)
 
-    const { data, totalPages } = useFetch(url, false, filterOptions)
-    const sortbyParams = [
+    const [genresIdAndNames, setGenreIdAndNames] = useState(isMovie ? movieGenres : tvGenres)
+    const sortbyValAndNames = [
+        { value: "original_title.asc", name: "Title (A-Z)" },
+        { value: "primary_release_date.desc", name: "Release Date Descending" },
+        { value: "primary_release_date.asc", name: "Release Date Ascending" },
         { value: "popularity.desc", name: "Popularity Descending" },
         { value: "popularity.asc", name: "Popularity Ascending" },
         { value: "vote_average.desc", name: "Rating Descending" },
         { value: "vote_average.asc", name: "Rating Ascending" },
-        { value: "primary_release_date.desc", name: "Release Date Descending" },
-        { value: "primary_release_date.asc", name: "Release Date Ascending" },
-        { value: "original_title.asc", name: "Title (A-Z)" },
     ]
-    const sortOptionList = sortbyParams.map(obj => obj.name)
-    const movieGenres = useSelector(state => state.home.movieGenres?.genres?.map(obj => obj.name))
-    const tvGenres = useSelector(state => state.home.tvGenres?.genres?.map(obj => obj.name))
-    const [genresList, setGenreList] = useState(isMovie ? movieGenres : tvGenres)
-    const genreChangeDetect = JSON.stringify(isMovie ? movieGenres : tvGenres)
 
-    const onSortingFilterChange = (values) => {
-        console.log('running onSortingFilterChange', values);
+
+    const fetchFirstPageData = async () => {
+        setLoading(true)
+        fetchDataFromApi(getURL(1), filterOptions)
+            .then(data => {
+                setData(data.results)
+                setTotalPages(data.total_pages)
+                setTotalResults(data.total_results)
+                setLoading(false)
+            })
+            .catch(er => { })
     }
 
-    useEffect(() => {
-        setDataArr([])
-        setFilterOptions({})
-    }, [mediaType])
-    useEffect(() => {
-        setGenreList(isMovie ? movieGenres : tvGenres)
-    }, [genreChangeDetect])
-
-    useEffect(() => {
-        if (data) {
-            if (pageNum === 1) {
-                setDataArr(data)
+    const fetchNextPageData = async () => {
+        if (navigator.onLine) {
+            if (isReachedEnd || pageNum >= totalPages) {
+                return;
+            }
+            const nextPageNum = pageNum + 1;
+            if (nextPageNum <= totalPages) {
+                fetchDataFromApi(getURL(nextPageNum), filterOptions)
+                    .then(data => {
+                        setData(prevResults => [...prevResults, ...(data?.results || [])])
+                        setTotalPages(data.total_pages)
+                        setTotalResults(data.total_results)
+                    })
+                    .catch(er => { })
+                setPageNum(nextPageNum)
             } else {
-                setDataArr([...dataArr, ...data])
+                setIsReachedEnd(true)
+            }
+        } else {
+            setNetworkFailed(true)
+        }
+    }
+
+    const onFilteringChange = (values) => {
+        if (values.genres) {
+            const withGenres = getMatchedVals(genresIdAndNames, values.genres, 'name', 'id')
+            if (withGenres) {
+                filterOptions.with_genres = JSON.stringify(withGenres).slice(1, -1)
+            } else {
+                delete filterOptions.with_genres
+            }
+        } else {
+            const sortBy = getMatchedVals(sortbyValAndNames, values.sortby, 'name', 'value')
+            if (sortBy) {
+                filterOptions.sort_by = sortBy[0]
+            } else {
+                delete filterOptions.sort_by
             }
         }
-    }, [data])
+        fetchFirstPageData()
+    }
+
+
+    useEffect(() => {
+        setTitle('Discover ' + (correctType(mediaType)) + 's')
+        setTimeout(() => {
+            window.scrollTo(0, 0)
+        }, 200);
+        setData([])
+        setPageNum(1)
+        setFilterOptions({})
+        fetchFirstPageData()
+    }, [mediaType])
+
+    useEffect(() => {
+        if (movieGenres && tvGenres) {
+            setGenreIdAndNames(isMovie ? movieGenres.genres : tvGenres.genres)
+        }
+    }, [movieGenres])
+
+
+    const hasMore = pageNum <= totalPages
+
 
     return (
-        <div className="filter-select">
-            <CustomSelect uniqueId={'sortby'} key={'sortby'} filterList={sortOptionList} hideOptionsOnSelect={false} canSelectMulti={false} nameOfSelect='Sortby' searchOption={true} onFilterChange={onSortingFilterChange} />
-            {genresList &&
-                <CustomSelect uniqueId={'mediaCategory'} key={'mediaCategory'} filterList={genresList} hideOptionsOnSelect={false} canSelectMulti={true} nameOfSelect={`${capFirstLetter(mediaType)} Category`} searchOption={true} onFilterChange={onSortingFilterChange} />
+        <>
+            {!networkFailed ?
+                <div className="discoverContainer">
+                    <div className="discoverTopBox">
+                        <h1 className='discoverHeading'>Disover {mediaType === 'tv' ? 'TV Shows' : capFirstLetter(mediaType)}</h1>
+                        <div className="filterBoxes">
+                            <CustomSelect
+                                resultName={'sortby'}
+                                uniqueId={'sortby'}
+                                key={'sortby'}
+                                filterList={sortbyValAndNames.map(obj => obj.name)}
+                                hideOptionsOnSelect={false}
+                                canSelectMulti={false}
+                                nameOfSelect='Sortby'
+                                searchOption={false}
+                                headerHeight={60}
+                                onFilterChange={onFilteringChange} />
+                            {Array.isArray(genresIdAndNames) &&
+                                <CustomSelect
+                                    resultName={'genres'}
+                                    uniqueId={'mediaCategory'}
+                                    key={'mediaCategory'}
+                                    filterList={genresIdAndNames.map(obj => obj.name)}
+                                    hideOptionsOnSelect={false}
+                                    canSelectMulti={true}
+                                    nameOfSelect={`${correctType(mediaType)} Category`}
+                                    searchOption={true}
+                                    headerHeight={60}
+                                    onFilterChange={onFilteringChange} />
+                            }
+                        </div>
+                    </div>
+                    {!loading && data ?
+                        <>
+                            <WatchBoxInfinite
+                                data={data}
+                                onReachEnd={fetchNextPageData}
+                                hasMore={hasMore}
+                            />
+                            <h1 className='reachedEnd pt-12'>{totalResults.length === 0 ? 'Not Found' : 'You Reached the End'}</h1>
+                        </>
+                        :
+                        <Spinner size='3rem' classNames='spinner viewport-center' loadingColor='var(--sky-blue-3)' circleColor='transparent' />
+                    }
+                </div>
+                :
+                <NetworkError
+                    height='100vh'
+                    width='100%'
+                    onClickBtn={() => { window.location.reload() }}
+                    message='Network failed'
+                    btnTxt='Reload'
+                />
             }
-        </div>
+        </>
     )
 }
 
-
-// template new card jsx;
-/*
-<div className="card w-96 bg-base-100 shadow-xl">
-  <figure><img src="/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
-  <div className="card-body">
-    <h2 className="card-title">
-      Shoes!
-      <div className="badge badge-secondary">NEW</div>
-    </h2>
-    <p>If a dog chews shoes whose shoes does he choose?</p>
-    <div className="card-actions justify-end">
-      <div className="badge badge-outline">Fashion</div> 
-      <div className="badge badge-outline">Products</div>
-    </div>
-  </div>
-</div>
-*/

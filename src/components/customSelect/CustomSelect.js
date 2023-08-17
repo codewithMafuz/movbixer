@@ -4,10 +4,7 @@ import { findClosestMatches } from '../../App';
 
 export default function CustomSelect({
     uniqueId,
-    classNamesExtras = {
-        'customSelectContainer': 'willAddToTheFirst',
-    },
-    justSearch = false,
+    resultName = false,
     nameOfSelect = 'Select',
     filterList = [],
     canSelectMulti = true,
@@ -16,13 +13,18 @@ export default function CustomSelect({
     onFilterChange = null,
     optionHeightPx = 28,
 }) {
+    resultName = resultName ? resultName : uniqueId
     if (!filterList) {
         filterList = [];
+    }
+    if (canSelectMulti) {
+        hideOptionsOnSelect = false
     }
 
     const [showFilterOptions, setShowFilterOptions] = useState(false);
     const allNames = filterList;
     const [filterOptions, setFilterOptions] = useState(allNames);
+    const [firstTimeModification, setFirstTimeModification] = useState(true)
     const [searchVal, setSearchVal] = useState('');
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [activeOptionIndex, setActiveOptionIndex] = useState(null);
@@ -36,6 +38,9 @@ export default function CustomSelect({
     const detectInputWidthSpan = useRef();
 
     useEffect(() => {
+        if (searchVal.length > 0) {
+            setShowFilterOptions(true)
+        }
         setCaretPos(detectInputWidthSpan?.current?.offsetWidth + 'px');
     }, [searchVal]);
 
@@ -53,7 +58,6 @@ export default function CustomSelect({
     };
 
     const searchFilterOptions = (ev) => {
-        handleCursor();
         if (!searchOption) {
             return;
         }
@@ -64,24 +68,26 @@ export default function CustomSelect({
         }
         const query = val.toLowerCase();
         if (query.length === 0) {
-            setFilterOptions(allNames);
+            setFilterOptions(allNames.filter(nm => !selectedOptions.includes(nm)));
         } else {
             const queryResults = findClosestMatches(query, allNames);
-            setFilterOptions(queryResults);
+            setFilterOptions(queryResults.filter(name => !selectedOptions.includes(name)));
         }
-        setActiveOptionIndex(filterOptions.length === 0 ? null : 0);
+        setActiveIndex(filterOptions.length === 0 ? null : 0);
+    };
+
+    const setActiveIndex = (nth) => {
+        const child = selectContainer?.current?.children[nth];
+        if (child) {
+            child.focus();
+            setActiveOptionIndex(nth);
+            inputField.current.focus();
+        }
     };
 
     const handleKeyDownFilterOption = (ev) => {
         handleCursor();
         if (filterOptions.length !== 0) {
-            const setActiveIndex = (nth) => {
-                const child = selectContainer?.current?.children[nth];
-                if (child) {
-                    child.focus();
-                    setActiveOptionIndex(nth);
-                }
-            };
             const code = ev.keyCode;
             const maxIndex = filterOptions.length - 1;
             if ((ev.ctrlKey || ev.metaKey) && code === 8) {
@@ -100,35 +106,34 @@ export default function CustomSelect({
                 if (activeOptionIndex === null) {
                     setActiveOptionIndex(0);
                 } else {
-                    if (maxIndex > 0) {
-                        if (code === 38) {
-                            const nth = activeOptionIndex === 0 ? maxIndex : activeOptionIndex - 1;
-                            setActiveIndex(nth);
-                        } else {
-                            const nth = activeOptionIndex === maxIndex ? 0 : activeOptionIndex + 1;
-                            setActiveIndex(nth);
-                        }
+                    const lastIndex = filterOptions.length - 1
+                    if (code === 38) {
+                        setActiveIndex(activeOptionIndex === 0 ? lastIndex : activeOptionIndex - 1)
+                    } else {
+                        setActiveIndex(activeOptionIndex === lastIndex ? 0 : activeOptionIndex + 1)
                     }
-                    inputField.current.focus();
                 }
             }
         }
     };
 
     const handleClickOption = (name, toAdd = true) => {
+        if (toAdd) {
+            setFirstTimeModification(false)
+        }
         if (canSelectMulti) {
             let arr = selectedOptions;
             if (toAdd) {
                 arr.push(name);
                 setSearchVal('');
             } else {
-                arr = arr.filter((nm) => nm !== name);
+                arr = arr.filter(nm => nm !== name);
             }
             setSelectedOptions(arr);
-            setFilterOptions(allNames.filter((nm) => !arr.includes(nm)));
+            setFilterOptions(allNames.filter(nm => !arr.includes(nm)));
         } else {
             setSelectedOptions(toAdd ? [name] : []);
-            setFilterOptions(toAdd ? allNames.filter((nm) => nm !== name) : allNames);
+            setFilterOptions(toAdd ? allNames.filter(nm => nm !== name) : allNames);
         }
         if (hideOptionsOnSelect) {
             setShowFilterOptions(false);
@@ -137,21 +142,6 @@ export default function CustomSelect({
 
     const focusInput = () => {
         inputField?.current?.focus();
-    };
-
-    const checkParentUntilTopBox = (element) => {
-        let parentElement = element.parentElement;
-        let count = 0
-        while (parentElement) {
-            if (count > 10) {
-                return false
-            }
-            count++
-            if (parentElement.className.includes('topBox')) {
-                return parentElement.id
-            }
-            parentElement = parentElement.parentElement;
-        }
     };
 
     const handleClickTopBox = (ev) => {
@@ -163,9 +153,24 @@ export default function CustomSelect({
         }
     }
 
-    const onBlurTopBox = () => {
-        console.log('blurred topbox');
-    }
+    useEffect(() => {
+        const handleOutsideClick = (ev) => {
+            if (topBoxContainer.current && !topBoxContainer.current.parentElement.contains(ev.target)) {
+                setSearchVal('');
+                setFilterOptions(filterList.filter((nm) => !selectedOptions.includes(nm)));
+                setShowFilterOptions(false);
+            }
+        };
+
+        if (showFilterOptions) {
+            const eventType = 'ontouchstart' in window ? 'touchstart' : 'mousedown';
+            document.addEventListener(eventType, handleOutsideClick);
+
+            return () => document.removeEventListener(eventType, handleOutsideClick);
+        }
+    }, [showFilterOptions]);
+
+
 
     useEffect(() => {
         const topBox = topBoxContainer?.current;
@@ -173,7 +178,11 @@ export default function CustomSelect({
             const height = topBox.clientHeight;
             topBox.lastElementChild.style.top = height + 4 + 'px';
         }
-        onFilterChange(selectedOptions);
+        const resultObj = {}
+        resultObj[resultName] = selectedOptions
+        if (!firstTimeModification) {
+            onFilterChange(resultObj);
+        }
     }, [JSON.stringify(selectedOptions)]);
 
     useEffect(() => {
@@ -203,7 +212,8 @@ export default function CustomSelect({
                                 {canSelectMulti &&
                                     <button
                                         className="removeSelectedOption"
-                                        onClick={() => {
+                                        onClick={(ev) => {
+                                            ev.stopPropagation()
                                             handleClickOption(selectedOption, false);
                                         }}
                                     >
@@ -225,7 +235,7 @@ export default function CustomSelect({
                             className={(searchOption ? '' : 'opacity-none ') + 'searchFilter'}
                             style={{ width: caretPos }}
                         />
-                        {showCaret && <div style={{ left: caretPos }} className="customCaret"></div>}
+                        {searchOption && showCaret && <div style={{ left: caretPos }} className="customCaret"></div>}
                     </div>
                 </div>
                 <button
@@ -246,38 +256,35 @@ export default function CustomSelect({
                         {showFilterOptions ? '<' : '>'}
                     </button>
                 </div>
-                {showFilterOptions && (
-                    <div
-                        className="select"
-                        ref={selectContainer}
-                        style={{
-                            top: topBoxContainer?.current.clientHeight + 2 + 'px',
-                        }}
-                    >
-                        {filterOptions.length === 0 ? (
-                            <div className="option noResult">{searchOption ? 'Not Found' : 'Selected all options'}</div>
-                        ) : (
-                            filterOptions.map((option, index) => (
-                                !selectedOptions.includes(option) && (
-                                    <button
-                                        style={{ height: optionHeightPx + 'px' }}
-                                        key={index}
-                                        onClick={() => {
-                                            handleClickOption(option);
-                                        }}
-                                        onMouseOver={() => {
-                                            setActiveOptionIndex(index);
-                                        }}
-                                        className={index === activeOptionIndex ? 'option active' : 'option'}
-                                    >
-                                        {option}
-                                    </button>
-                                )
-                            ))
-                        )}
-                    </div>
-                )}
             </div>
+            {showFilterOptions && (
+                <div
+                    className="select"
+                    ref={selectContainer}
+                    style={{
+                        top: topBoxContainer?.current.getBoundingClientRect().top + topBoxContainer?.current.getBoundingClientRect().height + 4,
+                        width: topBoxContainer?.current.clientWidth
+                    }}
+                >
+                    {filterOptions.length === 0 ? (
+                        <div className="option noResult">{searchOption ? 'Not Found' : 'Selected all options'}</div>
+                    ) : (
+                        filterOptions.map((option, index) => (
+                            <button
+                                style={{ height: optionHeightPx }}
+                                key={index}
+                                onClick={() => {
+                                    handleClickOption(option);
+                                }}
+                                onMouseOver={() => {
+                                    setActiveIndex(index);
+                                }}
+                                className={index === activeOptionIndex ? 'option active' : 'option'}
+                            >{option}</button>
+                        ))
+                    )}
+                </div>
+            )}
         </div>
     );
 }

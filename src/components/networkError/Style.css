@@ -1,0 +1,33 @@
+.network-failed-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 120px;
+    padding: 5px;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.network-failed-box h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 3px 30px;
+    font-size: 1.5rem;
+}
+
+.network-failed-box button {
+    font-family: var(--font5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 30px;
+    font-size: 1.1rem;
+    background: var(--black3);
+    color: white;
+    border: 1px solid white;
+    border-radius: 50px;
+    background: var(--gradient1);
+}

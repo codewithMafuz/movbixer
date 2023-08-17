@@ -3,10 +3,10 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import "./style.css";
 
-const RatingShow = ({ rating, parentClassName }) => {
+const RatingShow = ({ rating, parentClassName = '', size = false }) => {
     return (
-        <div className={parentClassName || ''}>
-            <div className="circleRatingShow">
+        <div className={parentClassName}>
+            <div className="circleRatingShow" style={{ height: size ? size : '100%', width: size ? size : '100%', }}>
                 <CircularProgressbar
                     value={rating}
                     maxValue={10}

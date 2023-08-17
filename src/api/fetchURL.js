@@ -15,7 +15,7 @@ const fetchDataFromApi = async (url, params) => {
         return response.data;
     } catch (err) {
         console.log(err);
-        throw err;
+        return err
     }
 };
 

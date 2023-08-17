@@ -1,33 +1,58 @@
-import React, { } from 'react'
+import React, { useEffect } from 'react'
 import Banner from '../../components/banner/Banner'
-import { useSelector } from 'react-redux'
 import Spinner from '../../components/spinner/Spinner'
 import ErrorPage from '../pageNotFound.js/PageNotFound'
 import WatchsBox from '../../components/watchsBox/WatchsBox'
+import NetworkError from '../../components/networkError/networkError'
+import { useParams } from 'react-router-dom'
+import { setTitle } from '../../App'
 
-export default function Home({ error }) {
+export default function Home({ loading, error, isOnline }) {
+  const refrshHomePage = () => {
+    localStorage.clear()
+    window.location.reload()
+  }
 
-  const { currentSituationOfPages, popularMoviesDataArr, popularTVsDataArr } = useSelector(state => state.home)
+  useEffect(() => {
+    setTitle('Mobvixer')
+  }, [])
+
 
   return (
     <div className="page home">
-      {currentSituationOfPages['/'] === 'success' && popularMoviesDataArr ?
+      {(!loading && !error && isOnline) ?
         <>
           <Banner />
 
-          <WatchsBox dataParam={{ 'Today': '/trending/all/day', 'Week': '/trending/all/week' }} heading={'Trending Movie & TV Shows'} />
-          <WatchsBox dataParam={popularMoviesDataArr} heading={'Popular Movies'} />
-          <WatchsBox dataParam={popularTVsDataArr} heading={'Popular TV Shows'} />
+          <WatchsBox
+            fetchProp={'results'}
+            videos={false}
+            dataParam={{
+              'Today': '/trending/all/day',
+              'Week': '/trending/all/week',
+            }}
+            heading={'Trending Movie & TV Shows'}
+            isIndexNavigate={false}
+          />
+          <WatchsBox
+            fetchProp={'results'}
+            videos={false}
+            dataParam={{
+              'Movie': '/movie/popular',
+              'TV': '/tv/popular',
+              'Crew': '/person/popular'
+            }}
+            heading={'Popular Now'}
+            isIndexNavigate={false} />
         </>
         :
-        currentSituationOfPages['/'] === 'loading' ?
-          <>
-            <Spinner classNames='viewport-center' size='3rem' loadingColor='var(--sky-blue-3)' />
-          </>
+        !loading && error ?
+          <ErrorPage />
           :
-          <>
-            <ErrorPage />
-          </>
+          !isOnline ?
+            <NetworkError onClickBtn={refrshHomePage} height='100vh' width='100vw' />
+            :
+            <Spinner classNames='viewport-center' size='3rem' loadingColor='var(--sky-blue-3)' />
       }
     </div>
   )

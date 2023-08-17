@@ -22,7 +22,6 @@
 
 .customSelectContainer {
     position: relative;
-    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -101,6 +100,13 @@
     height: 44px;
 }
 
+.removeAllSelection.input {
+    top: 0;
+    position: absolute;
+    right: 10px;
+    z-index: 1000;
+}
+
 .searchFilterContainer {
     height: 26px;
     width: auto;
@@ -159,7 +165,6 @@
     flex-direction: column;
     background-color: white;
     color: black;
-    width: 100%;
     display: flex;
     align-items: flex-start;
     border-radius: 5px;
@@ -170,9 +175,10 @@
     transition: .2s ease height, .2s ease width;
     max-height: 230px;
     overflow-y: scroll;
-    position: absolute;
-    left: 0;
-    top: 40px;
+    top: calc(38px + 60px);
+    position: fixed;
+    width: auto;
+    z-index: 100000;
 }
 
 .customSelectContainer .select::-webkit-scrollbar {
