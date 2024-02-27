@@ -1,0 +1,171 @@
+.carousel * {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+}
+
+.carousel.container {
+    height: auto;
+    min-height: 300px;
+    width: 100%;
+    padding: 10px;
+    position: relative;
+    background-color: var(--black2);
+}
+
+.container-wrap {
+    margin-left: 1vw !important;
+    margin-right: 1vw !important;
+}
+
+.carousel.topContent {
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2% 10%;
+    position: relative;
+}
+
+.carousel.heading {
+    padding-left: 10px;
+    font-size: 1.5rem;
+    color: var(--sky-blue-1);
+    border-bottom: 1px solid var(--sky-blue-1)
+}
+
+.carousel.swiper-slide-customize {
+    background-color: var(--sky-blue-transparent-1);
+    height: auto;
+    cursor: pointer;
+    padding: 4px;
+    position: relative;
+}
+
+.carousel.swiper-slide-customize:active,
+.carousel.swiper-slide-customize:focus,
+.carousel.swiper-slide-customize:hover {
+    box-shadow: rgba(16, 178, 228, 0.514) 0px 20px 30px;
+}
+
+.carousel.titleBox {
+    font-size: 1.3rem;
+    bottom: 0;
+    height: auto;
+    width: 100%;
+    padding: 2px;
+}
+
+.carousel.genreBox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px 5px;
+}
+
+.carousel.genreBox span {
+    position: relative;
+    background-color: var(--black3);
+    color: var(--sky-blue-1);
+}
+
+.circleRatingBox {
+    position: absolute;
+    bottom: 20%;
+    right: 20%;
+    width: 60px;
+    height: auto;
+    z-index: 10;
+}
+
+.slider-arrow {
+    color: var(--sky-blue-1);
+    background-color: rgba(165, 220, 241, 0.205);
+    width: 50px;
+    height: 70px;
+}
+
+.slider-arrow.swiper-button-prev {
+    left: -2px;
+}
+
+.slider-arrow.swiper-button-next {
+    right: -2px;
+}
+
+.active-slide {
+    cursor: pointer;
+    scale: 1;
+}
+
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: unset;
+    }
+
+
+    .carousel.black-image {
+        max-width: 145px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: unset;
+    }
+
+    .carousel.black-image {
+        max-width: 140px;
+    }
+}
+
+
+@media (min-width: 768px) {
+    .container {
+        max-width: unset;
+    }
+}
+
+
+@media (min-width: 640px) {
+    .container {
+        max-width: unset;
+    }
+
+    .carousel.black-image {
+        max-width: 110px;
+    }
+
+}
+
+@media screen and (max-width:900px) {
+    .carousel.topContent {
+        justify-content: left;
+    }
+
+    .carousel.topContent {
+        padding: 0;
+    }
+}
+
+@media screen and (max-width:600px) {
+    .carousel.heading {
+        font-size: 1.2rem;
+    }
+
+    .carousel.titleBox {
+        text-align: center;
+        font-size: 1.3rem;
+        height: auto;
+        width: 100%;
+        padding: 2px;
+        position: static;
+    }
+}

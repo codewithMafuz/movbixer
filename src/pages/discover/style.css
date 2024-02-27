@@ -1,0 +1,61 @@
+.discoverContainer {
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.discoverTopBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    width: 100%;
+    top: 50px;
+    left: 0;
+    z-index: 99;
+    background-color: var(--black3);
+}
+
+.discoverHeading {
+    flex: 0 0 50%;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--sky-blue-1);
+}
+
+.filterBoxes {
+    flex: 0 0 50%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2%;
+    padding: var(--wrap-padding);
+    z-index: 99;
+    width: 50vw;
+}
+
+@media screen and (max-width:1000px) {
+    .filterBoxes {
+        gap: 0;
+    }
+}
+
+
+@media screen and (max-width:600px) {
+    .discoverTopBox {
+        height: auto;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 10px;
+        position: sticky;
+        top: 0;
+    }
+
+    .filterBoxes {
+        gap: 3px;
+        width: 100%;
+        flex-direction: column;
+    }
+}

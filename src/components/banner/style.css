@@ -1,0 +1,136 @@
+.bannerContainer {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    z-index: 99;
+}
+
+.bannerOverlay {
+    background-color: rgba(0, 0, 0, 0.31);
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.bannerContainer .arrow-btn {
+    position: absolute;
+    top: 50%;
+    z-index: 1000;
+    color: white;
+    font-size: 2.6rem;
+    font-weight: 1000;
+}
+
+.arrow-btn.left {
+    left: 5px;
+}
+
+.arrow-btn.right {
+    right: 5px;
+}
+
+.bannerBoxes {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow-x: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth !important;
+    overflow-y: hidden;
+}
+
+.bannerBoxes .bannerBox {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+img.bannerImg,
+span.lazy-load-image-background.blur.lazy-load-image-loaded {
+    width: 100%;
+    height: 100%;
+}
+
+img.bannerImg {
+    object-fit: cover;
+}
+
+.bannerContentBox {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.548);
+    color: white;
+    z-index: 101;
+    padding: 0 10vw;
+    gap: 6%;
+}
+
+.bannerContentBox h1 {
+    font-family: var(--font-3);
+    font-size: 2.9rem;
+    letter-spacing: 1px;
+    text-align: center;
+    border-bottom: 1px solid var(--sky-blue-1);
+    color: var(--sky-blue-1);
+    padding: 5px;
+}
+
+
+.detailsBox {
+    color: white;
+    position: absolute;
+    bottom: 3%;
+    background: var(--gradient1);
+    border: none;
+    outline: none;
+}
+
+.detailsBox:hover {
+    filter: brightness(.9);
+}
+
+@media screen and (max-width:1000px) {
+    .arrow-btn {
+        display: none;
+    }
+
+    .bannerBoxes {
+        overflow-x: scroll;
+    }
+}
+
+@media screen and (max-width:600px) {
+    .bannerContentBox h1 {
+        font-size: 1.3rem;
+        border-bottom: none;
+    }
+
+    .arrow-btn {
+        font-size: 1.8rem;
+    }
+
+    .bannerContainer {
+        height: 80vh;
+    }
+
+    .bannerContentBox {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+}

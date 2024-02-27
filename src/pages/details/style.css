@@ -1,0 +1,105 @@
+.detailsPage {
+    background-color: var(--black1);
+}
+
+.infoBox.wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    max-height: 300px;
+    overflow-y: scroll;
+    padding: 15px 1px;
+}
+
+.infoBox.wrap::-webkit-scrollbar {
+    width: 5px;
+}
+
+.infoBox.wrap::-webkit-scrollbar {
+    width: 5px;
+}
+
+.infoBox.wrap::-webkit-scrollbar-track {
+    background: black;
+}
+
+.infoBox.wrap::-webkit-scrollbar-thumb {
+    background: var(--sky-blue-3);
+    border-radius: 16px;
+}
+
+.infoBox.wrap::-webkit-scrollbar-thumb:hover {
+    background: lightblue;
+}
+
+
+.infoBox * {
+    user-select: none;
+    -moz-user-select: none;
+}
+
+.infoWrapItem {
+    margin: 10px;
+    width: 350px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+.contentBox {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--black3);
+    border-bottom: 1px dashed var(--sky-blue-3);
+    margin-top: 32px;
+}
+
+.contentBox .topBar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    text-align: center;
+}
+
+.contentBox .topBar .icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.contentBox .title {
+    width: 100%;
+    margin: 20px 0;
+}
+
+@media screen and (max-width:800px) {
+    .detailsPage {
+        padding-top: 50px;
+    }
+
+    .box.videoBox {
+        display: flex;
+        height: 500px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .box.videoBox img {
+        height: 100%;
+        width: auto;
+    }
+
+    .keepTopViewport.infoBoxContainer {
+        gap: 2vh;
+        flex-direction: column;
+    }
+
+    .infoBoxes {
+        max-width: unset !important;
+    }
+
+
+}
